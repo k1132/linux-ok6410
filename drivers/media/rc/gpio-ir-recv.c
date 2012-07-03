@@ -83,11 +83,17 @@ static int __devinit gpio_ir_recv_probe(struct platform_device *pdev)
 	}
 
 	rcdev->driver_type = RC_DRIVER_IR_RAW;
-	rcdev->allowed_protos = RC_TYPE_ALL;
 	rcdev->input_name = GPIO_IR_DEVICE_NAME;
 	rcdev->input_id.bustype = BUS_HOST;
 	rcdev->driver_name = GPIO_IR_DRIVER_NAME;
-	rcdev->map_name = RC_MAP_EMPTY;
+	if (pdata->allowed_protos)
+		rcdev->allowed_protos = pdata->allowed_protos;
+	else
+		rcdev->allowed_protos = RC_TYPE_ALL;
+	if (pdata->map_name)
+		rcdev->map_name = pdata->map_name;
+	else
+		rcdev->map_name = RC_MAP_EMPTY;
 
 	gpio_dev->rcdev = rcdev;
 	gpio_dev->gpio_nr = pdata->gpio_nr;
