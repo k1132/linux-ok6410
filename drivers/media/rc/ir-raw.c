@@ -63,8 +63,12 @@ static int ir_raw_event_thread(void *data)
 		spin_unlock_irq(&raw->lock);
 
 		mutex_lock(&ir_raw_handler_lock);
-		list_for_each_entry(handler, &ir_raw_handler_list, list)
-			handler->decode(raw->dev, ev);
+		list_for_each_entry(handler, &ir_raw_handler_list, list) {
+			/* use all protocol by default */
+			if (raw->dev->allowed_protos == RC_TYPE_UNKNOWN ||
+			    raw->dev->allowed_protos & handler->protocols)
+				handler->decode(raw->dev, ev);
+		}
 		raw->prev_ev = ev;
 		mutex_unlock(&ir_raw_handler_lock);
 	}
